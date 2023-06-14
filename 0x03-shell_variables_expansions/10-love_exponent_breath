@@ -1,2 +1,2 @@
 #!/bin/bash
-echo "${BREATH} to the power ${LOVE} is `expr ${BREATH} \* ${LOVE}`"
+echo "${BREATH} to the power ${LOVE} is $(echo "scale=2; ${BREATH}^${LOVE}" | bc)"
