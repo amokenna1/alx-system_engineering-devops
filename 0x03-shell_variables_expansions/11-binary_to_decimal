@@ -1,2 +1,2 @@
 #!/bin/bash
-echo "The base 10 representation of ${BINARY:-0}" | bc
+echo $((2#$BINARY))
