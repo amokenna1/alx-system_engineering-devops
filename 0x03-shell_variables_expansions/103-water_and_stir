@@ -1,2 +1,2 @@
 #!/bin/bash
-echo $(printf %o $(($(echo $WATER | tr 'water' '01234' | tr -d '.' | sed 's/[^0-4]//g') + $(echo $STIR | tr 'stir.' '01234' | tr -d '.' | sed 's/[^0-4]//g')))) | tr '01234567' 'bestchol'
+echo $(( $(echo $WATER | tr 'water' '01234' | tr -d '.' | tr -cd '0-4' | fold -w1 | awk '{sum+=$1*1} END{print sum}') + $(echo $STIR | tr 'stir.' '01234' | tr -d '.' | tr -cd '0-4' | fold -w1 | awk '{sum+=$1*1} END{print sum}') )) | awk '{split("bestchol", a, ""); s=""; while($1>0){s=a[$1%8+1]s; $1=int($1/8);} print s}'
