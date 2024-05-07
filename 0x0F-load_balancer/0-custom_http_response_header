@@ -1,13 +1,33 @@
 #!/usr/bin/env bash
-# configure a brand new NGINX server
+# This script configures Nginx to include a custom HTTP response header
 
-apt-get -y update
-apt-get -y install nginx
+# Install Nginx
+apt-get update
+apt-get install -y nginx
 
-echo "Hello World" > /var/www/html/index.html
-echo "Ceci n'est pas une page" > /var/www/html/404.html
+# Create a custom Nginx configuration file
+cat <<EOF > /etc/nginx/sites-available/custom-header
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
 
-sed -i "/listen 80 default_server;/a rewrite ^/redirect_me https://www.youtube.com/watch?v=QH2-TGUlwu4 permanent;" /etc/nginx/sites-available/default
-sed -i "/listen 80 default_server;/a error_page 404 /404.html;" /etc/nginx/sites-available/default
-sed -i '14a \\tadd_header X-Served-By '"${HOSTNAME}"';' /etc/nginx/nginx.conf
-service nginx restart
+    server_name _;
+
+    add_header X-Served-By \$hostname;
+
+    location / {
+        proxy_pass http://localhost:5000;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+    }
+}
+EOF
+
+# Enable the custom Nginx configuration
+ln -s /etc/nginx/sites-available/custom-header /etc/nginx/sites-enabled/custom-header
+
+# Restart Nginx to apply the changes
+systemctl restart nginx
+
